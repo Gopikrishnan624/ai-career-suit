@@ -28,8 +28,9 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Error handling middleware
-app.use((err, req, res) => {
+// Error handling middleware (must keep 4 args for Express to treat as error handler)
+app.use((err, req, res, next) => {
+  void next;
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
