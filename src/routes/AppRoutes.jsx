@@ -35,9 +35,9 @@ export default function AppRoutes() {
         ) : (
           <>
             <Route element={<AppShell />}>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/resume" element={<Navigate to="/resume/analyze" />} />
+              <Route path="/resume" element={<Navigate to="/resume/analyze" replace />} />
               <Route path="/resume/analyze" element={<ResumeAnalyzer />} />
               <Route path="/resume/chat" element={<ResumeChatPage />} />
               <Route path="/resume/jobs" element={<ResumeJobsPage />} />
@@ -45,7 +45,7 @@ export default function AppRoutes() {
               <Route path="/simulator" element={<CareerSimulator />} />
               <Route path="/interview" element={<InterviewBot />} />
             </Route>
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
         )}
       </Routes>
