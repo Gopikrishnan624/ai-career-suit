@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { simulateCareer } from '../../services/aiService';
 import { FiAlertCircle, FiArrowRight, FiBookOpen, FiCheckCircle, FiClock, FiFlag, FiTarget } from 'react-icons/fi';
+import StructuredAiRenderer from '../../components/StructuredAiRenderer';
 
 export default function CareerSimulator() {
   const [formData, setFormData] = useState({
@@ -61,8 +62,7 @@ export default function CareerSimulator() {
   );
 
   return (
-    <Container fluid className="app-shell theme-simulator">
-      <Container>
+    <Container fluid className="page-shell theme-simulator">
         <div className="page-head">
           <div className="page-icon">
             <FiCompass size={20} />
@@ -258,17 +258,20 @@ export default function CareerSimulator() {
                 </div>
               ) : (
                 <div className="glass-panel p-3 result-block">
-                  <div className="analysis-markdown">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {getReadableSimulation(result)}
-                    </ReactMarkdown>
-                  </div>
+                  {result && typeof result === 'object' && !Array.isArray(result) && !result?.text ? (
+                    <StructuredAiRenderer content={result} />
+                  ) : (
+                    <div className="analysis-markdown">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {getReadableSimulation(result)}
+                      </ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               )}
             </Card.Body>
           </Card>
         )}
-      </Container>
     </Container>
   );
 }

@@ -1,9 +1,17 @@
 import { useState } from 'react';
-import { Alert, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
-import { FiCheckCircle, FiMessageCircle, FiMic, FiPlayCircle, FiRotateCw } from 'react-icons/fi';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { Alert, Badge, Button, Card, Col, Container, Form, ListGroup, Row, Spinner } from 'react-bootstrap';
+import {
+  FiAlertCircle,
+  FiAward,
+  FiCheckCircle,
+  FiMessageCircle,
+  FiMic,
+  FiPlayCircle,
+  FiRotateCw,
+  FiTrendingUp,
+} from 'react-icons/fi';
 import { generateInterviewQuestions, scoreInterviewAnswer } from '../../services/aiService';
+import StructuredAiRenderer from '../../components/StructuredAiRenderer';
 
 export default function InterviewBot() {
   const [stage, setStage] = useState('setup');
@@ -15,6 +23,8 @@ export default function InterviewBot() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState(null);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [answerHistory, setAnswerHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -64,6 +74,8 @@ export default function InterviewBot() {
       setQuestions(parsedQuestions);
       setStage('questions');
       setCurrentQuestionIndex(0);
+      setTotalPoints(0);
+      setAnswerHistory([]);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Error generating questions');
     } finally {
@@ -86,6 +98,16 @@ export default function InterviewBot() {
         userAnswer,
       });
       setFeedback(response.data.feedback);
+      const pointsAwarded = response.data.pointsAwarded ?? response.data.feedback?.pointsAwarded ?? 0;
+      setTotalPoints((current) => current + pointsAwarded);
+      setAnswerHistory((current) => [
+        ...current,
+        {
+          question: questions[currentQuestionIndex],
+          pointsAwarded,
+          score: response.data.feedback?.score ?? 0,
+        },
+      ]);
       setStage('scoring');
     } catch (err) {
       setError(err.response?.data?.error || 'Error scoring answer');
@@ -112,18 +134,13 @@ export default function InterviewBot() {
     setCurrentQuestionIndex(0);
     setUserAnswer('');
     setFeedback(null);
+    setTotalPoints(0);
+    setAnswerHistory([]);
     setError('');
   };
 
-  const getReadableFeedback = (value) => {
-    if (typeof value === 'string') return value;
-    if (value?.text && typeof value.text === 'string') return value.text;
-    return `\`\`\`json\n${JSON.stringify(value, null, 2)}\n\`\`\``;
-  };
-
   return (
-    <Container fluid className="app-shell theme-interview">
-      <Container>
+    <Container fluid className="page-shell theme-interview">
         <div className="page-head">
           <div className="page-icon">
             <FiMic size={20} />
@@ -184,7 +201,13 @@ export default function InterviewBot() {
           <Card className="glass-card stage-2">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <strong>Question {currentQuestionIndex + 1} of {questions.length}</strong>
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                  <strong>Question {currentQuestionIndex + 1} of {questions.length}</strong>
+                  <Badge bg="warning" text="dark">
+                    <FiAward className="me-1" />
+                    {totalPoints} points
+                  </Badge>
+                </div>
                 <Button variant="outline-light" size="sm" onClick={resetInterview}>
                   <FiRotateCw className="me-1" />
                   Reset
@@ -221,7 +244,13 @@ export default function InterviewBot() {
             <Card.Body>
               <Row className="align-items-center mb-3">
                 <Col>
-                  <Card.Title className="h4 mb-0">Feedback</Card.Title>
+                  <Card.Title className="h4 mb-0 d-flex align-items-center gap-2">
+                    Feedback
+                    <Badge bg="warning" text="dark">
+                      <FiAward className="me-1" />
+                      +{feedback?.pointsAwarded ?? feedback?.score ?? 0} points
+                    </Badge>
+                  </Card.Title>
                 </Col>
                 <Col xs="auto">
                   <Button variant="outline-light" onClick={handleNextQuestion}>
@@ -231,17 +260,133 @@ export default function InterviewBot() {
                 </Col>
               </Row>
 
-              <div className="glass-panel p-3 result-block">
-                <div className="analysis-markdown">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {getReadableFeedback(feedback)}
-                  </ReactMarkdown>
+              {feedback && typeof feedback === 'object' && !Array.isArray(feedback) ? (
+                <div className="result-block">
+                  <Row className="g-3 mb-3">
+                    <Col md={4}>
+                      <Card className="glass-panel h-100">
+                        <Card.Body>
+                          <div className="structured-label">Score</div>
+                          <div className="display-6 fw-bold">{feedback.score ?? 0}/{feedback.maxScore ?? 10}</div>
+                          <small className="text-light opacity-75">AI evaluation score for this answer.</small>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                    <Col md={4}>
+                      <Card className="glass-panel h-100">
+                        <Card.Body>
+                          <div className="structured-label">Points Earned</div>
+                          <div className="display-6 fw-bold text-warning">{feedback.pointsAwarded ?? feedback.score ?? 0}</div>
+                          <small className="text-light opacity-75">Added to the user total after this question.</small>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                    <Col md={4}>
+                      <Card className="glass-panel h-100">
+                        <Card.Body>
+                          <div className="structured-label">Question Progress</div>
+                          <div className="display-6 fw-bold">{currentQuestionIndex + 1}/{questions.length}</div>
+                          <small className="text-light opacity-75">Current position in the interview round.</small>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  </Row>
+
+                  <Card className="glass-panel mb-3">
+                    <Card.Body>
+                      <Card.Title className="h5 d-flex align-items-center gap-2 mb-3">
+                        <FiTrendingUp />
+                        Feedback Summary
+                      </Card.Title>
+                      <p className="mb-0 text-light">{feedback.feedback || 'No summary feedback provided.'}</p>
+                    </Card.Body>
+                  </Card>
+
+                  <Row className="g-3 mb-3">
+                    <Col lg={6}>
+                      <Card className="glass-panel h-100">
+                        <Card.Body>
+                          <Card.Title className="h5 d-flex align-items-center gap-2 mb-3">
+                            <FiCheckCircle />
+                            Strengths
+                          </Card.Title>
+                          {Array.isArray(feedback.strengths) && feedback.strengths.length > 0 ? (
+                            <ListGroup variant="flush">
+                              {feedback.strengths.map((item, index) => (
+                                <ListGroup.Item
+                                  key={index}
+                                  className="bg-transparent text-light border-secondary-subtle d-flex align-items-start gap-2"
+                                >
+                                  <FiCheckCircle className="mt-1 flex-shrink-0 text-info" />
+                                  <span>{item}</span>
+                                </ListGroup.Item>
+                              ))}
+                            </ListGroup>
+                          ) : (
+                            <p className="text-light opacity-75 mb-0">No strengths were provided.</p>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    </Col>
+
+                    <Col lg={6}>
+                      <Card className="glass-panel h-100">
+                        <Card.Body>
+                          <Card.Title className="h5 d-flex align-items-center gap-2 mb-3">
+                            <FiAlertCircle />
+                            Improvements
+                          </Card.Title>
+                          {Array.isArray(feedback.improvements) && feedback.improvements.length > 0 ? (
+                            <ListGroup variant="flush">
+                              {feedback.improvements.map((item, index) => (
+                                <ListGroup.Item
+                                  key={index}
+                                  className="bg-transparent text-light border-secondary-subtle d-flex align-items-start gap-2"
+                                >
+                                  <FiAlertCircle className="mt-1 flex-shrink-0 text-warning" />
+                                  <span>{item}</span>
+                                </ListGroup.Item>
+                              ))}
+                            </ListGroup>
+                          ) : (
+                            <p className="text-light opacity-75 mb-0">No improvement notes were provided.</p>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  </Row>
+
+                  {feedback.sampleBetterAnswer && (
+                    <Card className="glass-panel">
+                      <Card.Body>
+                        <Card.Title className="h5 mb-3">Sample Better Answer</Card.Title>
+                        <div className="analysis-markdown">
+                          <StructuredAiRenderer content={feedback.sampleBetterAnswer} />
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  )}
                 </div>
+              ) : (
+                <div className="glass-panel p-3 result-block">
+                  <StructuredAiRenderer content={feedback} />
+                </div>
+              )}
+
+              <div className="glass-panel p-3 mt-3">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <strong>Total Score</strong>
+                  <Badge bg="success">{totalPoints} points earned</Badge>
+                </div>
+                {answerHistory.length > 0 && (
+                  <small className="text-light opacity-75">
+                    Latest round score: {answerHistory[answerHistory.length - 1]?.score ?? 0}/10
+                  </small>
+                )}
               </div>
             </Card.Body>
           </Card>
         )}
-      </Container>
     </Container>
   );
 }

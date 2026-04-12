@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { FiLock, FiShield, FiStar } from 'react-icons/fi';
@@ -12,6 +12,14 @@ export default function Auth() {
   const [error, setError] = useState('');
   const { login: setAuth } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const authMessage = sessionStorage.getItem('authMessage');
+    if (authMessage) {
+      setError(authMessage);
+      sessionStorage.removeItem('authMessage');
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,7 +57,7 @@ export default function Auth() {
                   <FiLock size={20} />
                 </div>
                 <h1 className="h3 fw-bold mb-2">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-                <p>{isLogin ? 'Log in to continue your career journey.' : 'Start using AI Career Suite in under a minute.'}</p>
+                <p>{isLogin ? 'Log in to continue your career journey.' : 'Start using PathPilot in under a minute.'}</p>
               </div>
 
               <div className="metric-card d-flex align-items-center gap-2 mb-3 stage-2">

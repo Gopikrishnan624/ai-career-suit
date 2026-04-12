@@ -1,9 +1,25 @@
-import { resumeAnalyzerPrompt } from '../services/promptTemplates.js';
+import {
+  jobRecommendationPrompt,
+  resumeAnalyzerPrompt,
+  resumeChatPrompt,
+  resumeCreationPrompt,
+} from '../services/promptTemplates.js';
 import { callAI } from '../services/aiService.js';
 import Analysis from '../models/Analysis.js';
 import { extractTextFromPDF } from '../utils/pdfParser.js';
 import mongoose from 'mongoose';
 import { waitForMongoConnection } from '../utils/dbReady.js';
+
+function formatChatHistory(messages = []) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return '';
+  }
+
+  return messages
+    .filter((message) => message?.role && message?.content)
+    .map((message) => `${message.role.toUpperCase()}: ${message.content}`)
+    .join('\n');
+}
 
 export async function analyzeResume(req, res) {
   try {
@@ -50,6 +66,7 @@ export async function analyzeResume(req, res) {
 
     res.json({
       success: true,
+      resumeText,
       analysis: result,
     });
   } catch (error) {
@@ -63,6 +80,70 @@ export async function analyzeResume(req, res) {
       return res.status(400).json({ error: error.message });
     }
 
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+}
+
+export async function chatWithResume(req, res) {
+  try {
+    const { resumeText, messages, question } = req.body;
+
+    if (!resumeText || !question) {
+      return res.status(400).json({ error: 'resumeText and question are required' });
+    }
+
+    const prompt = resumeChatPrompt(resumeText, formatChatHistory(messages), question);
+    const result = await callAI(prompt);
+
+    res.json({
+      success: true,
+      reply: result,
+    });
+  } catch (error) {
+    console.error('Resume chat error:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+}
+
+export async function recommendJobs(req, res) {
+  try {
+    const { resumeText } = req.body;
+
+    if (!resumeText) {
+      return res.status(400).json({ error: 'resumeText is required' });
+    }
+
+    const prompt = jobRecommendationPrompt(resumeText);
+    const result = await callAI(prompt);
+
+    res.json({
+      success: true,
+      recommendations: result?.recommendations || [],
+      raw: result,
+    });
+  } catch (error) {
+    console.error('Job recommendation error:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+}
+
+export async function createResume(req, res) {
+  try {
+    const { templateName, answers } = req.body;
+
+    if (!templateName || !answers) {
+      return res.status(400).json({ error: 'templateName and answers are required' });
+    }
+
+    const prompt = resumeCreationPrompt(templateName, answers);
+    const result = await callAI(prompt);
+
+    res.json({
+      success: true,
+      resume: result,
+    });
+  } catch (error) {
+    console.error('Resume creation error:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }

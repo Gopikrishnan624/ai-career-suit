@@ -1,4 +1,4 @@
-import { interviewPrepPrompt } from '../services/promptTemplates.js';
+import { interviewPrepPrompt, interviewScoringPrompt } from '../services/promptTemplates.js';
 import { callAI } from '../services/aiService.js';
 import Analysis from '../models/Analysis.js';
 import mongoose from 'mongoose';
@@ -78,22 +78,17 @@ export async function scoreAnswer(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const scoringPrompt = `
-      Score the following interview answer on a scale of 1-10.
-      Question: ${question}
-      Answer: ${userAnswer}
-
-      Provide:
-      1. Score (1-10)
-      2. Feedback
-      3. Suggestions for improvement
-    `;
-
-    const result = await callAI(scoringPrompt);
+    const result = await callAI(interviewScoringPrompt(question, userAnswer));
+    const pointsAwarded = Number.isInteger(result?.pointsAwarded)
+      ? result.pointsAwarded
+      : Number.isInteger(result?.score)
+        ? result.score
+        : 0;
 
     res.json({
       success: true,
       feedback: result,
+      pointsAwarded,
     });
   } catch (error) {
     console.error('Answer scoring error:', error);

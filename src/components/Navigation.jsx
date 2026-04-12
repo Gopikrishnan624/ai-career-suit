@@ -20,7 +20,7 @@ export default function Navigation() {
           <span className="brand-mark">
             <FiZap />
           </span>
-          AI Career Suite
+          PathPilot
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="main-nav" />

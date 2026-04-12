@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthContext } from './auth-context';
 
 export function AuthProvider({ children }) {
@@ -29,6 +29,15 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   };
+
+  useEffect(() => {
+    const handleExpiredAuth = () => {
+      logout();
+    };
+
+    window.addEventListener('auth-expired', handleExpiredAuth);
+    return () => window.removeEventListener('auth-expired', handleExpiredAuth);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout }}>

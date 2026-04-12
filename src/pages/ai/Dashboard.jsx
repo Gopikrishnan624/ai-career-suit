@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Alert, Badge, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiActivity, FiArrowUpRight, FiBarChart2, FiCompass, FiFileText, FiMic } from 'react-icons/fi';
+import { FiActivity, FiArrowUpRight, FiBarChart2, FiBriefcase, FiCompass, FiEdit3, FiFileText, FiMessageSquare, FiMic } from 'react-icons/fi';
 import { useAuth } from '../../context/useAuth';
 import { getAnalyses } from '../../services/aiService';
 
 const features = [
-  { to: '/resume', title: 'Resume Analyzer', subtitle: 'Extract and improve resume quality', tone: 'warning', icon: FiFileText },
+  { to: '/resume/analyze', title: 'Resume Analysis', subtitle: 'Extract insights and ATS feedback from a PDF resume', tone: 'warning', icon: FiFileText },
+  { to: '/resume/chat', title: 'Resume Chat', subtitle: 'Ask targeted follow-up questions about your resume', tone: 'info', icon: FiMessageSquare },
+  { to: '/resume/jobs', title: 'Job Matches', subtitle: 'Discover job roles that best fit your resume', tone: 'success', icon: FiBriefcase },
+  { to: '/resume/create', title: 'Resume Creator', subtitle: 'Generate a polished resume from guided answers', tone: 'dark', icon: FiEdit3 },
   { to: '/simulator', title: 'Career Simulator', subtitle: 'Model next steps in your growth path', tone: 'primary', icon: FiCompass },
-  { to: '/interview', title: 'Interview Bot', subtitle: 'Generate practice questions with feedback', tone: 'success', icon: FiMic },
+  { to: '/interview', title: 'Interview Bot', subtitle: 'Practice and score answers like a real app flow', tone: 'success', icon: FiMic },
 ];
 
 export default function Dashboard() {
@@ -37,22 +40,51 @@ export default function Dashboard() {
   };
 
   return (
-    <Container fluid className="app-shell theme-dashboard">
-      <Container>
+    <Container fluid className="page-shell theme-dashboard">
         <div className="page-head">
           <div className="page-icon">
             <FiBarChart2 size={20} />
           </div>
           <h1 className="display-6 fw-bold mb-2">Dashboard</h1>
-          {user && <p>Welcome back, {user.email}</p>}
+          {user && <p>Welcome back, {user.email}. Pick a workspace and keep momentum across the whole app.</p>}
         </div>
 
         {error && <Alert variant="warning">{error}</Alert>}
 
+        <Card className="glass-card dashboard-hero mb-4 stage-1">
+          <Card.Body>
+            <Row className="align-items-center g-4">
+              <Col lg={7}>
+                <div className="topbar-kicker">Career Workspace</div>
+                <h2 className="hero-title">One app for resume prep, AI coaching, job targeting, and interview practice.</h2>
+                <p className="text-light opacity-75 mb-0">
+                  Each tool now lives in its own page so the experience feels more focused, faster to navigate, and closer to a real product.
+                </p>
+              </Col>
+              <Col lg={5}>
+                <div className="hero-orbit">
+                  <div className="hero-orbit-card glass-panel">
+                    <FiFileText />
+                    Resume Suite
+                  </div>
+                  <div className="hero-orbit-card glass-panel">
+                    <FiMic />
+                    Interview Prep
+                  </div>
+                  <div className="hero-orbit-card glass-panel">
+                    <FiCompass />
+                    Growth Planning
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
         <Row className="g-4 mb-4">
           {features.map((item, index) => (
-            <Col md={4} key={item.to}>
-              <Card as={Link} to={item.to} className={`glass-card h-100 text-decoration-none stage-${index + 1}`}>
+            <Col md={6} xl={4} key={item.to}>
+              <Card as={Link} to={item.to} className={`glass-card h-100 text-decoration-none stage-${(index % 4) + 1} app-feature-card`}>
                 <Card.Body>
                   <Badge bg={item.tone} className="mb-3">Tool</Badge>
                   <div className="d-flex align-items-center justify-content-between mb-2">
@@ -99,7 +131,6 @@ export default function Dashboard() {
             )}
           </Card.Body>
         </Card>
-      </Container>
     </Container>
   );
 }
