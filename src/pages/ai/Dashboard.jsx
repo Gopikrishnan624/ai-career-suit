@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Alert, Badge, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiActivity, FiArrowUpRight, FiBarChart2, FiBriefcase, FiCompass, FiEdit3, FiFileText, FiMessageSquare, FiMic } from 'react-icons/fi';
+import { FiActivity, FiArrowUpRight, FiBarChart2, FiBriefcase, FiCompass, FiEdit3, FiFileText, FiMessageSquare, FiMic, FiTrendingUp, FiZap } from 'react-icons/fi';
 import { useAuth } from '../../context/useAuth';
 import { getAnalyses } from '../../services/aiService';
+import SkeletonBlock from '../../components/SkeletonBlock';
+import pathpilotLogo from '../../assets/Pathpilot.png';
 
 const features = [
   { to: '/resume/analyze', title: 'Resume Analysis', subtitle: 'Extract insights and ATS feedback from a PDF resume', tone: 'warning', icon: FiFileText },
@@ -60,26 +62,80 @@ export default function Dashboard() {
                 <p className="text-light opacity-75 mb-0">
                   Each tool now lives in its own page so the experience feels more focused, faster to navigate, and closer to a real product.
                 </p>
+                <div className="hero-actions mt-4">
+                  <Link to="/resume/analyze" className="btn btn-brand hero-btn">
+                    <FiZap className="me-2" />
+                    Start Resume Suite
+                  </Link>
+                  <Link to="/interview" className="btn btn-outline-light hero-btn-secondary">
+                    Open Interview Bot
+                  </Link>
+                </div>
               </Col>
               <Col lg={5}>
-                <div className="hero-orbit">
-                  <div className="hero-orbit-card glass-panel">
-                    <FiFileText />
-                    Resume Suite
+                <div className="hero-logo-wrap">
+                  <img src={pathpilotLogo} alt="PathPilot logo" className="hero-logo" />
+                  <div className="hero-logo-caption glass-panel">
+                    <span>PathPilot Workspace</span>
+                    <small>Resume suite, interview bot, and career simulator in one product.</small>
                   </div>
-                  <div className="hero-orbit-card glass-panel">
-                    <FiMic />
-                    Interview Prep
-                  </div>
-                  <div className="hero-orbit-card glass-panel">
-                    <FiCompass />
-                    Growth Planning
+                  <div className="hero-chart glass-panel">
+                    <div className="hero-chart-head">
+                      <strong>Workflow Activity</strong>
+                      <small>Animated productivity snapshot</small>
+                    </div>
+                    <div className="hero-chart-bars">
+                      {[82, 55, 94, 68, 76].map((value, index) => (
+                        <div key={index} className="hero-chart-bar-wrap">
+                          <div className="hero-chart-bar" style={{ '--bar-height': `${value}%`, animationDelay: `${index * 120}ms` }} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Col>
             </Row>
           </Card.Body>
         </Card>
+
+        <Row className="g-4 mb-4">
+          <Col md={4}>
+            <Card className="glass-card metric-surface stage-2">
+              <Card.Body>
+                <div className="metric-icon">
+                  <FiActivity />
+                </div>
+                <div className="metric-value">{analyses.length}</div>
+                <div className="metric-title">Saved AI Sessions</div>
+                <small className="text-light opacity-75">Every analysis is stored so your workflow keeps context.</small>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col md={4}>
+            <Card className="glass-card metric-surface stage-3">
+              <Card.Body>
+                <div className="metric-icon">
+                  <FiTrendingUp />
+                </div>
+                <div className="metric-value">Resume + Interview</div>
+                <div className="metric-title">Connected Journey</div>
+                <small className="text-light opacity-75">Move from resume analysis into role prep and practice instantly.</small>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col md={4}>
+            <Card className="glass-card metric-surface stage-4">
+              <Card.Body>
+                <div className="metric-icon">
+                  <FiZap />
+                </div>
+                <div className="metric-value">PathPilot</div>
+                <div className="metric-title">Portfolio-Ready UI</div>
+                <small className="text-light opacity-75">A cleaner, richer SaaS interface suitable for demos and real users.</small>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
 
         <Row className="g-4 mb-4">
           {features.map((item, index) => (
@@ -106,10 +162,17 @@ export default function Dashboard() {
               Recent Analyses
             </Card.Title>
             {loading ? (
-              <div className="d-flex align-items-center gap-2">
-                <Spinner size="sm" animation="border" />
-                <span>Loading history...</span>
-              </div>
+              <Row className="g-3">
+                {[1, 2, 3].map((item) => (
+                  <Col sm={6} lg={4} key={item}>
+                    <div className="glass-panel p-3 h-100">
+                      <SkeletonBlock className="skeleton-line short mb-3" />
+                      <SkeletonBlock className="skeleton-line medium mb-2" />
+                      <SkeletonBlock className="skeleton-line long" />
+                    </div>
+                  </Col>
+                ))}
+              </Row>
             ) : analyses.length > 0 ? (
               <Row className="g-3">
                 {analyses.map((analysis) => (

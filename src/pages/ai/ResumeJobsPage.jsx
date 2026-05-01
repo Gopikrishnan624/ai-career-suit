@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
 import { FiBriefcase, FiStar, FiTrendingUp } from 'react-icons/fi';
 import { recommendJobsFromResume } from '../../services/aiService';
@@ -10,7 +10,7 @@ export default function ResumeJobsPage() {
   const [jobRecommendations, setJobRecommendations] = useState([]);
   const [error, setError] = useState('');
 
-  const handleRecommendJobs = async () => {
+  const handleRecommendJobs = useCallback(async () => {
     if (!workspace.resumeText) {
       setError('Analyze a resume first to get job recommendations.');
       return;
@@ -26,13 +26,13 @@ export default function ResumeJobsPage() {
     } finally {
       setJobLoading(false);
     }
-  };
+  }, [workspace.resumeText]);
 
   useEffect(() => {
     if (workspace.resumeText) {
       handleRecommendJobs();
     }
-  }, []);
+  }, [handleRecommendJobs, workspace.resumeText]);
 
   return (
     <Container fluid className="page-shell theme-resume">
