@@ -71,12 +71,6 @@ export default function AppShell() {
           </div>
         </div>
 
-        <div className={`workspace-status glass-panel ${sidebarCollapsed ? 'd-none' : ''}`}>
-          <div className="workspace-label">Workspace</div>
-          <div className="workspace-title">Choose one task and stay focused</div>
-          <small className="text-soft">Use the left menu to move between tools without the extra dashboard clutter.</small>
-        </div>
-
         <div className="sidebar-scroll">
           {navGroups.map((group) => (
             <div key={group.title} className="nav-group">
@@ -102,9 +96,7 @@ export default function AppShell() {
       <main className="app-main">
         <div className="app-topbar glass-card">
           <div className="topbar-copy">
-            <div className="topbar-kicker">Workspace</div>
             <h1 className="topbar-title">{pageTitle}</h1>
-            <p className="topbar-subtitle">Premium AI workflows for resumes, interviews, and career momentum.</p>
           </div>
 
           <div className="topbar-actions">

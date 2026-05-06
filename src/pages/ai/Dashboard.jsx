@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Alert, Badge, Card, Col, Container, Row, Spinner } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Col, Container, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiActivity, FiArrowUpRight, FiBarChart2, FiBriefcase, FiCompass, FiEdit3, FiFileText, FiMessageSquare, FiMic, FiTrendingUp, FiZap } from 'react-icons/fi';
+import { FiActivity, FiArrowRight, FiArrowUpRight, FiBarChart2, FiBriefcase, FiCheckCircle, FiClock, FiCompass, FiEdit3, FiFileText, FiMessageSquare, FiMic, FiRefreshCw, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '../../context/useAuth';
 import { getAnalyses } from '../../services/aiService';
 import SkeletonBlock from '../../components/SkeletonBlock';
-import pathpilotLogo from '../../assets/Pathpilot.png';
 
 const features = [
-  { to: '/resume/analyze', title: 'Resume Analysis', subtitle: 'Extract insights and ATS feedback from a PDF resume', tone: 'warning', icon: FiFileText },
-  { to: '/resume/chat', title: 'Resume Chat', subtitle: 'Ask targeted follow-up questions about your resume', tone: 'info', icon: FiMessageSquare },
-  { to: '/resume/jobs', title: 'Job Matches', subtitle: 'Discover job roles that best fit your resume', tone: 'success', icon: FiBriefcase },
-  { to: '/resume/create', title: 'Resume Creator', subtitle: 'Generate a polished resume from guided answers', tone: 'dark', icon: FiEdit3 },
-  { to: '/simulator', title: 'Career Simulator', subtitle: 'Model next steps in your growth path', tone: 'primary', icon: FiCompass },
-  { to: '/interview', title: 'Interview Bot', subtitle: 'Practice and score answers like a real app flow', tone: 'success', icon: FiMic },
+  { to: '/resume/analyze', title: 'Resume Analysis', subtitle: 'Upload a PDF and get ATS-focused feedback.', label: 'Start here', icon: FiFileText },
+  { to: '/resume/chat', title: 'Resume Chat', subtitle: 'Ask follow-up questions about your resume.', label: 'Coach', icon: FiMessageSquare },
+  { to: '/resume/jobs', title: 'Job Matches', subtitle: 'Find roles aligned with your experience.', label: 'Match', icon: FiBriefcase },
+  { to: '/resume/create', title: 'Resume Creator', subtitle: 'Build a polished resume from guided inputs.', label: 'Create', icon: FiEdit3 },
+  { to: '/simulator', title: 'Career Simulator', subtitle: 'Plan your next role transition clearly.', label: 'Plan', icon: FiCompass },
+  { to: '/interview', title: 'Interview Bot', subtitle: 'Practice answers and receive scored feedback.', label: 'Practice', icon: FiMic },
 ];
 
 export default function Dashboard() {
@@ -41,159 +40,165 @@ export default function Dashboard() {
     }
   };
 
+  const latestAnalysis = analyses[0];
+  const resumeCount = analyses.filter((item) => item.type === 'resume').length;
+  const practiceCount = analyses.filter((item) => item.type === 'interview' || item.type === 'simulator').length;
+
   return (
     <Container fluid className="page-shell theme-dashboard">
-        <div className="page-head">
-          <div className="page-icon">
-            <FiBarChart2 size={20} />
+        <div className="dashboard-header">
+          <div>
+            <div className="page-icon mb-3">
+              <FiBarChart2 size={20} />
+            </div>
+            <h1 className="dashboard-title">Dashboard</h1>
+            <p className="dashboard-subtitle">
+              Welcome back{user?.name ? `, ${user.name}` : ''}. Choose a tool, review recent work, and keep your career prep organized.
+            </p>
           </div>
-          <h1 className="display-6 fw-bold mb-2">Dashboard</h1>
-          {user && <p>Welcome back, {user.email}. Pick a workspace and keep momentum across the whole app.</p>}
+          <div className="dashboard-header-actions">
+            <Button as={Link} to="/resume/analyze" className="btn-brand">
+              Analyze Resume
+              <FiArrowRight className="ms-2" />
+            </Button>
+            <Button as={Link} to="/interview" variant="link" className="dashboard-secondary-action">
+              Practice Interview
+            </Button>
+          </div>
         </div>
 
         {error && <Alert variant="warning">{error}</Alert>}
 
-        <Card className="glass-card dashboard-hero mb-4 stage-1">
-          <Card.Body>
-            <Row className="align-items-center g-4">
-              <Col lg={7}>
-                <div className="topbar-kicker">Career Workspace</div>
-                <h2 className="hero-title">One app for resume prep, AI coaching, job targeting, and interview practice.</h2>
-                <p className="text-light opacity-75 mb-0">
-                  Each tool now lives in its own page so the experience feels more focused, faster to navigate, and closer to a real product.
-                </p>
-                <div className="hero-actions mt-4">
-                  <Link to="/resume/analyze" className="btn btn-brand hero-btn">
-                    <FiZap className="me-2" />
-                    Start Resume Suite
-                  </Link>
-                  <Link to="/interview" className="btn btn-outline-light hero-btn-secondary">
-                    Open Interview Bot
-                  </Link>
-                </div>
-              </Col>
-              <Col lg={5}>
-                <div className="hero-logo-wrap">
-                  <img src={pathpilotLogo} alt="PathPilot logo" className="hero-logo" />
-                  <div className="hero-logo-caption glass-panel">
-                    <span>PathPilot Workspace</span>
-                    <small>Resume suite, interview bot, and career simulator in one product.</small>
-                  </div>
-                  <div className="hero-chart glass-panel">
-                    <div className="hero-chart-head">
-                      <strong>Workflow Activity</strong>
-                      <small>Animated productivity snapshot</small>
-                    </div>
-                    <div className="hero-chart-bars">
-                      {[82, 55, 94, 68, 76].map((value, index) => (
-                        <div key={index} className="hero-chart-bar-wrap">
-                          <div className="hero-chart-bar" style={{ '--bar-height': `${value}%`, animationDelay: `${index * 120}ms` }} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-
-        <Row className="g-4 mb-4">
+        <Row className="g-3 mb-4">
           <Col md={4}>
-            <Card className="glass-card metric-surface stage-2">
-              <Card.Body>
-                <div className="metric-icon">
-                  <FiActivity />
-                </div>
-                <div className="metric-value">{analyses.length}</div>
-                <div className="metric-title">Saved AI Sessions</div>
-                <small className="text-light opacity-75">Every analysis is stored so your workflow keeps context.</small>
-              </Card.Body>
-            </Card>
+            <div className="dashboard-stat glass-card stage-1">
+              <FiActivity className="dashboard-stat-icon" />
+              <div>
+                <span className="dashboard-stat-value">{loading ? '-' : analyses.length}</span>
+                <span className="dashboard-stat-label">Saved sessions</span>
+              </div>
+            </div>
           </Col>
           <Col md={4}>
-            <Card className="glass-card metric-surface stage-3">
-              <Card.Body>
-                <div className="metric-icon">
-                  <FiTrendingUp />
-                </div>
-                <div className="metric-value">Resume + Interview</div>
-                <div className="metric-title">Connected Journey</div>
-                <small className="text-light opacity-75">Move from resume analysis into role prep and practice instantly.</small>
-              </Card.Body>
-            </Card>
+            <div className="dashboard-stat glass-card stage-2">
+              <FiFileText className="dashboard-stat-icon" />
+              <div>
+                <span className="dashboard-stat-value">{loading ? '-' : resumeCount}</span>
+                <span className="dashboard-stat-label">Resume analyses</span>
+              </div>
+            </div>
           </Col>
           <Col md={4}>
-            <Card className="glass-card metric-surface stage-4">
-              <Card.Body>
-                <div className="metric-icon">
-                  <FiZap />
-                </div>
-                <div className="metric-value">PathPilot</div>
-                <div className="metric-title">Portfolio-Ready UI</div>
-                <small className="text-light opacity-75">A cleaner, richer SaaS interface suitable for demos and real users.</small>
-              </Card.Body>
-            </Card>
+            <div className="dashboard-stat glass-card stage-3">
+              <FiTrendingUp className="dashboard-stat-icon" />
+              <div>
+                <span className="dashboard-stat-value">{loading ? '-' : practiceCount}</span>
+                <span className="dashboard-stat-label">Practice plans</span>
+              </div>
+            </div>
           </Col>
         </Row>
 
-        <Row className="g-4 mb-4">
-          {features.map((item, index) => (
-            <Col md={6} xl={4} key={item.to}>
-              <Card as={Link} to={item.to} className={`glass-card h-100 text-decoration-none stage-${(index % 4) + 1} app-feature-card`}>
-                <Card.Body>
-                  <Badge bg={item.tone} className="mb-3">Tool</Badge>
-                  <div className="d-flex align-items-center justify-content-between mb-2">
-                    <item.icon size={20} />
-                    <FiArrowUpRight />
+        <Row className="g-4">
+          <Col xl={8}>
+            <Card className="glass-card dashboard-section stage-1">
+              <Card.Body>
+                <div className="dashboard-section-head">
+                  <div>
+                    <Card.Title className="h4 mb-1">Tools</Card.Title>
+                    <p className="text-soft mb-0">Everything you need for resume, job, and interview preparation.</p>
                   </div>
-                  <Card.Title className="fw-bold">{item.title}</Card.Title>
-                  <Card.Text className="text-light opacity-75">{item.subtitle}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                </div>
 
-        <Card className="glass-card stage-4">
-          <Card.Body>
-            <Card.Title className="h4 mb-3 d-flex align-items-center gap-2">
-              <FiActivity />
-              Recent Analyses
-            </Card.Title>
-            {loading ? (
-              <Row className="g-3">
-                {[1, 2, 3].map((item) => (
-                  <Col sm={6} lg={4} key={item}>
-                    <div className="glass-panel p-3 h-100">
-                      <SkeletonBlock className="skeleton-line short mb-3" />
-                      <SkeletonBlock className="skeleton-line medium mb-2" />
-                      <SkeletonBlock className="skeleton-line long" />
-                    </div>
-                  </Col>
-                ))}
-              </Row>
-            ) : analyses.length > 0 ? (
-              <Row className="g-3">
-                {analyses.map((analysis) => (
-                  <Col sm={6} lg={4} key={analysis._id}>
-                    <div className="glass-panel p-3 h-100">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-capitalize">{analysis.type}</strong>
-                        <Badge bg="dark">Saved</Badge>
+                <Row className="g-3 mt-1">
+                  {features.map((item, index) => (
+                    <Col md={6} key={item.to}>
+                      <Card as={Link} to={item.to} className={`dashboard-tool-card text-decoration-none stage-${(index % 4) + 1}`}>
+                        <Card.Body>
+                          <div className="dashboard-tool-top">
+                            <span className="dashboard-tool-icon">
+                              <item.icon />
+                            </span>
+                            <Badge bg="dark">{item.label}</Badge>
+                          </div>
+                          <Card.Title className="h6 mb-2">{item.title}</Card.Title>
+                          <Card.Text>{item.subtitle}</Card.Text>
+                          <span className="dashboard-tool-link">
+                            Open
+                            <FiArrowUpRight />
+                          </span>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col xl={4}>
+            <Card className="glass-card dashboard-section stage-2 mb-4">
+              <Card.Body>
+                <Card.Title className="h4 mb-3">Next Step</Card.Title>
+                <div className="dashboard-next-step">
+                  <FiCheckCircle />
+                  <div>
+                    <strong>{latestAnalysis ? 'Continue from your latest session' : 'Start with a resume analysis'}</strong>
+                    <p className="mb-0 text-soft">
+                      {latestAnalysis
+                        ? `Your last saved item was a ${latestAnalysis.type} session.`
+                        : 'Upload your resume first to unlock better chat, job matching, and rewrite guidance.'}
+                    </p>
+                  </div>
+                </div>
+                <Button as={Link} to={latestAnalysis ? '/resume/chat' : '/resume/analyze'} className="btn-brand w-100 mt-3">
+                  {latestAnalysis ? 'Open Resume Chat' : 'Analyze Resume'}
+                </Button>
+              </Card.Body>
+            </Card>
+
+            <Card className="glass-card dashboard-section stage-3">
+              <Card.Body>
+                <div className="dashboard-section-head mb-3">
+                  <Card.Title className="h4 mb-0">Recent Activity</Card.Title>
+                  <Button variant="outline-light" size="sm" onClick={loadAnalyses} disabled={loading} aria-label="Refresh recent analyses">
+                    <FiRefreshCw />
+                  </Button>
+                </div>
+
+                {loading ? (
+                  <div className="d-flex flex-column gap-3">
+                    {[1, 2, 3].map((item) => (
+                      <div className="dashboard-activity-item" key={item}>
+                        <SkeletonBlock className="skeleton-line short mb-3" />
+                        <SkeletonBlock className="skeleton-line long" />
                       </div>
-                      <small className="text-light opacity-75">
-                        {new Date(analysis.createdAt).toLocaleString()}
-                      </small>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
-            ) : (
-              <p className="text-light opacity-75 mb-0">No analyses yet. Start from any tool above.</p>
-            )}
-          </Card.Body>
-        </Card>
+                    ))}
+                  </div>
+                ) : analyses.length > 0 ? (
+                  <div className="dashboard-activity-list">
+                    {analyses.slice(0, 5).map((analysis) => (
+                      <div className="dashboard-activity-item" key={analysis._id}>
+                        <div className="dashboard-activity-icon">
+                          <FiClock />
+                        </div>
+                        <div>
+                          <strong className="text-capitalize">{analysis.type}</strong>
+                          <small>{new Date(analysis.createdAt).toLocaleString()}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state-panel">
+                    <strong>No activity yet</strong>
+                    <p className="mb-0 text-soft">Use any tool to create your first saved session.</p>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
     </Container>
   );
 }

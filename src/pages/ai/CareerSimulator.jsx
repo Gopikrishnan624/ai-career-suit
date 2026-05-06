@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, ListGroup, Row, Spinner } from 'react-bootstrap';
-import { FiCompass, FiMap, FiTrendingUp } from 'react-icons/fi';
+import { FiCompass, FiMap } from 'react-icons/fi';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { simulateCareer } from '../../services/aiService';
@@ -76,10 +76,6 @@ export default function CareerSimulator() {
         {!result && (
           <Card className="glass-card stage-1 mb-4">
             <Card.Body>
-              <div className="metric-card d-flex align-items-center gap-2 mb-3 stage-2">
-                <FiTrendingUp />
-                <small>Role transition roadmap with timeline, skill priorities, and risks.</small>
-              </div>
               <Form onSubmit={handleSubmit}>
                 <Row className="g-3">
                   <Col md={6}>

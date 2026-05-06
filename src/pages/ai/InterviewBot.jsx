@@ -4,7 +4,6 @@ import {
   FiAlertCircle,
   FiAward,
   FiCheckCircle,
-  FiMessageCircle,
   FiMic,
   FiPlayCircle,
   FiRotateCw,
@@ -154,10 +153,6 @@ export default function InterviewBot() {
         {stage === 'setup' && (
           <Card className="glass-card stage-1">
             <Card.Body>
-              <div className="metric-card d-flex align-items-center gap-2 mb-3 stage-2">
-                <FiMessageCircle />
-                <small>Generate role-specific questions and practice responses with coaching.</small>
-              </div>
               <Form onSubmit={handleGenerateQuestions}>
                 <Form.Group className="mb-3">
                   <Form.Label>Job Description</Form.Label>

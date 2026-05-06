@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiBriefcase, FiFileText, FiMessageSquare, FiUploadCloud, FiUserCheck, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiBriefcase, FiFileText, FiMessageSquare, FiUploadCloud, FiUserCheck } from 'react-icons/fi';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import StructuredAiRenderer from '../../components/StructuredAiRenderer';
@@ -71,10 +71,6 @@ export default function ResumeAnalyzer() {
 
       <Card className="glass-card stage-1 mb-4">
         <Card.Body>
-          <div className="metric-card d-flex align-items-center gap-2 mb-3 stage-2">
-            <FiZap />
-            <small>Run one analysis and use the result across chat, job matches, and resume improvement tools.</small>
-          </div>
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>PDF Resume</Form.Label>

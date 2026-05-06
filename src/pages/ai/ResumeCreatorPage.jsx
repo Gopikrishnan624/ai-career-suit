@@ -91,36 +91,38 @@ export default function ResumeCreatorPage() {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Row className="g-4">
-        <Col xl={5}>
-          <Card className="glass-card h-100">
+        <Col xs={12}>
+          <Card className="glass-card">
             <Card.Body>
               <Card.Title className="h5 d-flex align-items-center gap-2 mb-3">
                 <FiLayers />
-                Choose Resume Model
+                Choose Template
               </Card.Title>
-              <div className="d-flex flex-column gap-3">
+              <Row className="g-3">
                 {resumeTemplates.map((template) => (
-                  <label key={template.id} className={`template-card ${selectedTemplate.id === template.id ? 'active' : ''}`}>
-                    <Form.Check
-                      type="radio"
-                      name="resumeTemplate"
-                      checked={selectedTemplate.id === template.id}
-                      onChange={() => setSelectedTemplate(template)}
-                      label={
-                        <span>
-                          <strong>{template.name}</strong>
-                          <span className="d-block text-light opacity-75">{template.description}</span>
-                        </span>
-                      }
-                    />
-                  </label>
+                  <Col md={4} key={template.id}>
+                    <label className={`template-card h-100 ${selectedTemplate.id === template.id ? 'active' : ''}`}>
+                      <Form.Check
+                        type="radio"
+                        name="resumeTemplate"
+                        checked={selectedTemplate.id === template.id}
+                        onChange={() => setSelectedTemplate(template)}
+                        label={
+                          <span>
+                            <strong>{template.name}</strong>
+                            <span className="d-block text-soft">{template.description}</span>
+                          </span>
+                        }
+                      />
+                    </label>
+                  </Col>
                 ))}
-              </div>
+              </Row>
             </Card.Body>
           </Card>
         </Col>
 
-        <Col xl={7}>
+        <Col xs={12}>
           <Card className="glass-card">
             <Card.Body>
               <Card.Title className="h5 d-flex align-items-center gap-2 mb-3">
@@ -136,12 +138,13 @@ export default function ResumeCreatorPage() {
                         <Form.Label>{question.label}</Form.Label>
                         <Form.Control
                           as={question.key === 'fullName' || question.key === 'targetRole' ? 'input' : 'textarea'}
-                          rows={question.key === 'fullName' || question.key === 'targetRole' ? undefined : 3}
+                          rows={question.key === 'projects' || question.key === 'experience' ? 4 : 2}
                           className="glass-input"
                           name={question.key}
                           value={creatorAnswers[question.key]}
                           onChange={handleCreatorChange}
                           placeholder={question.placeholder}
+                          spellCheck={false}
                         />
                       </Form.Group>
                     </Col>

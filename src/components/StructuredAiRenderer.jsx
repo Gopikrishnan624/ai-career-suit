@@ -1,4 +1,4 @@
-import { Badge, Card, ListGroup } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -49,7 +49,7 @@ function renderArray(items) {
   return (
     <div className="d-flex flex-column gap-3">
       {items.map((item, index) => (
-        <div key={index} className="glass-panel p-3">
+        <div key={index} className="structured-nested">
           <StructuredAiRenderer content={item} />
         </div>
       ))}
@@ -75,19 +75,15 @@ export default function StructuredAiRenderer({ content }) {
   }
 
   return (
-    <ListGroup variant="flush" className="structured-list">
+    <div className="structured-list">
       {Object.entries(content).map(([key, value]) => (
-        <ListGroup.Item key={key} className="bg-transparent text-light border-secondary-subtle px-0">
-          <Card className="glass-panel structured-card">
-            <Card.Body>
-              <div className="structured-label">{toTitleCase(key)}</div>
-              <div className="structured-value">
-                <StructuredAiRenderer content={value} />
-              </div>
-            </Card.Body>
-          </Card>
-        </ListGroup.Item>
+        <section key={key} className="structured-item">
+          <div className="structured-label">{toTitleCase(key)}</div>
+          <div className="structured-value">
+            <StructuredAiRenderer content={value} />
+          </div>
+        </section>
       ))}
-    </ListGroup>
+    </div>
   );
 }
