@@ -950,6 +950,54 @@ textarea.glass-input {
   border-color: rgba(76, 117, 255, 0.24);
 }
 
+.resume-creator-head,
+.resume-output-head,
+.resume-download-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.resume-creator-head,
+.resume-output-head {
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.resume-download-actions {
+  justify-content: flex-end;
+}
+
+.resume-download-actions .btn,
+.resume-creator-head .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resume-preview-shell {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  overflow: auto;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.resume-preview-shell .resume-document {
+  transform-origin: top center;
+}
+
+.ai-polish-details {
+  color: var(--ink);
+}
+
+.ai-polish-details summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-weight: 700;
+}
+
 .chat-thread {
   display: flex;
   flex-direction: column;
@@ -1530,6 +1578,12 @@ textarea.glass-input {
   .dashboard-section-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .resume-download-actions,
+  .resume-download-actions .btn,
+  .resume-creator-head .btn {
+    width: 100%;
   }
 
   .hero-actions {
